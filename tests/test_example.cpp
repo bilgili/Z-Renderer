@@ -2,11 +2,11 @@
 /* Copyright (c) 2015 <zombierendering@gmail.com>
  *
  */
-#include <boost/test/framework.hpp>
-#include <boost/test/auto_unit_test.hpp>
+
 #include <string>
 
 #define BOOST_TEST_MODULE example
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE( text_test )
 {
