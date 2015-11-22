@@ -1,5 +1,5 @@
-# Copyright (c) ZombieRendering 2011-2015 ahmetbilgili@gmail.com
-#                                        serkan.ergun@gmail.com
+# Copyright (c) ZombieRendering 2015-2016 ahmetbilgili@gmail.com
+#                                         serkan.ergun@gmail.com
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
