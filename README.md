@@ -1,7 +1,7 @@
-# Hello
+# Z-Renderer
 
 Welcome to Z-Renderer, an Out-of-core Physically Based 
-Ray Tracer based on CUDA.
+GPU Ray Tracer.
 
 ## Features
 
@@ -12,7 +12,7 @@ Z-Renderer provides the following functionality:
 ## Building from Source
 
 ```
-  git clone https://github.com/ZombieRenderer/Z-Renderer.git
+  git clone https://github.com/ZombieRendering/Z-Renderer.git
   mkdir Z-Renderer/build
   cd Z-Renderer/build
   cmake ..
