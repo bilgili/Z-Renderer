@@ -17,31 +17,41 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _scenegraph_types_
-#define _scenegraph_types_
-
-#include <zrenderer/common/types.h>
+#include <zrenderer/scenegraph/filter.h>
 
 namespace zrenderer
 {
 
-class GeometryNode;
-class Node;
-class NodeData;
-class SceneGraph;
-class Visitor;
+struct Filter::Impl
+{
+public:
 
-typedef std::shared_ptr<Node> NodePtr;
-typedef std::shared_ptr<const Node> ConstNodePtr;
-typedef std::shared_ptr<NodeData> NodeDataPtr;
-typedef std::shared_ptr<const NodeData> ConstNodeDataPtr;
-typedef std::shared_ptr<GeometryNode> GeometryNode;
+    void compare( const FilterProperties& filter ) const
+    {}
 
-typedef std::vector<NodePtr> NodePtrs;
-typedef std::vector<ConstNodePtr> ConstNodePtrs;
+    void addFilterDefinition( FilterLogic filterLogic,
+                              const FilterDefinition& filterDef )
+    {}
 
-const std::string ROOT_NODE = "RootNode";
+    void addFilter( FilterLogic logic,
+                    const Filter& filter )
+    {}
+
+    FilterProperties _requestedProperties;
+    Filter _requestedFilters;
+};
+
+void Filter::compare( const FilterProperties& filter ) const
+{}
+
+void Filter::addFilterDefinition( FilterLogic filterLogic,
+                                  const FilterDefinition& filterDef )
+{}
+
+void Filter::addFilter( FilterLogic logic,
+                        const Filter& filter )
+{}
+
+
 
 }
-
-#endif // _scenegraph_types_
