@@ -30,8 +30,6 @@ namespace zrenderer
  */
 class NodeData
 {
-    virtual bool satisfiesFilter( const Filter& filter ) = 0;
-
 protected:
     virtual ~NodeData() {}
 

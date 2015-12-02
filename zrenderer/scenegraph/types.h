@@ -25,7 +25,7 @@
 namespace zrenderer
 {
 
-class GeometryNode;
+class GeometryData;
 class Node;
 class NodeData;
 class SceneGraph;
@@ -35,7 +35,7 @@ typedef std::shared_ptr<Node> NodePtr;
 typedef std::shared_ptr<const Node> ConstNodePtr;
 typedef std::shared_ptr<NodeData> NodeDataPtr;
 typedef std::shared_ptr<const NodeData> ConstNodeDataPtr;
-typedef std::shared_ptr<GeometryNode> GeometryNode;
+typedef std::shared_ptr<GeometryData> GeometryDataPtr;
 
 typedef std::vector<NodePtr> NodePtrs;
 typedef std::vector<ConstNodePtr> ConstNodePtrs;

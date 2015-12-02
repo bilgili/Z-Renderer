@@ -18,4 +18,5 @@
 #  define UNUSED __attribute__((unused))
 #  ifdef DEPRECATED // Set CMake option ENABLE_WARN_DEPRECATED
 #    define DEPRECATED __attribute__((deprecated))
-#  endif
+#  endif // DEPRECATED
+#endif // defined (__GNUC__)

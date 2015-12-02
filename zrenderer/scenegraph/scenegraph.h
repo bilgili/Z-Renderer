@@ -51,7 +51,7 @@ public:
      * same name is there return an empty NodePtr
      */
     NodePtr createNode( const std::string& name,
-                        NodeDataPtr nodeData );
+                        const NodeDataPtr& nodeData );
 
     /**
      * Finds a node in the scene graph
@@ -94,13 +94,22 @@ public:
     NodePtrs&& getChildren( const std::string& parent ) const;
 
     /**
+     * Queries if a parent node has a child
+     * @param parent node name
+     * @param child node name
+     * @return true if parent has the child
+     */
+    bool hasChild( const std::string& parent,
+                   const std::string& child ) const;
+
+    /**
      * Traverse the scene graph with depth first search algorithm
      * using the visitor and starting point
      * @param visitor the visitor class that is executed per vertex
      * @param name name of the root node to start traversing.
      */
-    void traverse( const Visitor& visitor,
-                   const std::string& name = ROOT_NODE ) const;
+    void traverse( Visitor& visitor,
+                   const std::string& name = ROOT_NODE );
 
 private:
 

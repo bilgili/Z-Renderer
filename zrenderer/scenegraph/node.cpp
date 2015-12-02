@@ -8,15 +8,15 @@ namespace zrenderer
 struct Node::Impl
 {
     Impl( const std::string& name,
-          NodeDataPtr nodeData,
+          const NodeDataPtr& nodeData,
           SceneGraph& sceneGraph )
         : _name( name )
         , _nodeData( nodeData )
-        , sceneGraph( sceneGraph )
+        , _sceneGraph( sceneGraph )
             {}
     ~Impl()
     {
-        _sceneGraph.removeChild( _name );
+        _sceneGraph.removeNode( _name );
     }
 
     NodePtr getParent() const
@@ -24,35 +24,31 @@ struct Node::Impl
         return _sceneGraph.getParent( _name );
     }
 
-    void addChild( const NodePtr& node )
+    bool addChild( const NodePtr& node )
     {
-        _sceneGraph.addChild( _name, node->_impl->_name );
+        return _sceneGraph.addChild( _name, node->getName() );
     }
 
-    void removeChild( NodePtr node )
+    bool removeChild( const NodePtr& node )
     {
-        _sceneGraph.removeChild( _name );
+        if( !_sceneGraph.hasChild( _name,node->getName() ))
+            return false;
+
+        return _sceneGraph.removeNode( node->getName() );
     }
 
-    NodePtrs&& getChildren( const Filter& filter ) const
+    NodePtrs&& getChildren() const
     {
-        NodePtrs&& nodes = _sceneGraph.getChildren( _name );
-        NodePtrs ret;
-        for( const NodePtr& node: nodes )
-        {
-            if( node->getNodeData()->satisfiesFilter( filter ))
-                ret.push_back( node );
-        }
-        return std::move( nodes );
+        return _sceneGraph.getChildren( _name );
     }
 
-    SceneGraph& _sceneGraph;
     const std::string _name;
     NodeDataPtr _nodeData;
+    SceneGraph& _sceneGraph;
 };
 
 Node::Node( const std::string& name,
-            NodeDataPtr nodeData,
+            const NodeDataPtr& nodeData,
             SceneGraph& sceneGraph )
     : _impl( new Node::Impl( name,
                              nodeData,
@@ -61,7 +57,7 @@ Node::Node( const std::string& name,
 
 }
 
-std::string& Node::getName() const
+const std::string& Node::getName() const
 {
     return _impl->_name;
 }
@@ -81,19 +77,19 @@ NodePtr Node::getParent() const
     return _impl->getParent();
 }
 
-NodePtrs&& Node::getChildren( const Filter& filter ) const
+NodePtrs&& Node::getChildren() const
 {
-    return _impl->getChildren( filter );
+    return _impl->getChildren();
 }
 
 Node::~Node() {}
 
-NodeDataPtr Node::getNodeData()
+NodeDataPtr Node::_getNodeData()
 {
     return _impl->_nodeData;
 }
 
-ConstNodeDataPtr Node::getNodeData() const
+ConstNodeDataPtr Node::_getNodeData() const
 {
     return _impl->_nodeData;
 }

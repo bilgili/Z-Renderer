@@ -18,6 +18,9 @@
  */
 
 #include <zrenderer/scenegraph/scenegraph.h>
+#include <zrenderer/scenegraph/node.h>
+#include <zrenderer/scenegraph/visitor.h>
+
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/depth_first_search.hpp>
 
@@ -26,8 +29,7 @@ namespace zrenderer
 
 typedef boost::adjacency_list< boost::listS,
                                boost::vecS,
-                               boost::directedS,
-                               boost::no_property,
+                               boost::bidirectionalS    ,
                                NodePtr > Graph;
 
 typedef Graph::vertex_descriptor NodeDescriptor;
@@ -37,28 +39,31 @@ typedef std::unordered_map< std::string, NodeDescriptor > NodeMap;
 class DFSNodeVisitor : public boost::default_dfs_visitor
 {
 public:
-    DFSNodeVisitor( Visitor& visitor )
-    :  _visitor( visitor )
+    DFSNodeVisitor( SceneGraph& scenegraph, Visitor& visitor )
+    : _scenegraph( scenegraph )
+    , _visitor( visitor )
     {}
 
     template < typename NodePtr, typename Graph >
     void start_vertex( NodePtr node, const Graph& graph UNUSED ) const
     {
-        _visitor->preVisit( node );
+        _visitor.preVisit( _scenegraph, node );
     }
 
     template < typename NodePtr, typename Graph >
     void examine_vertex( NodePtr node, const Graph& graph UNUSED ) const
     {
-        _visitor->visit( node );
+        _visitor.visit( _scenegraph, node );
     }
 
     template < typename Vertex, typename Graph >
     void finish_vertex( NodePtr node, const Graph& graph UNUSED ) const
     {
-        _visitor->postVisit( node );
+        _visitor.postVisit( _scenegraph, node );
     }
-    Visitor _visitor;
+
+    SceneGraph& _scenegraph;
+    Visitor& _visitor;
 };
 
 struct SceneGraph::Impl
@@ -67,6 +72,7 @@ struct SceneGraph::Impl
         : _rootNode( new Node( ROOT_NODE,
                                NodeDataPtr(),
                                sceneGraph ))
+        , _sceneGraph( sceneGraph )
     {
         const NodeDescriptor& nd =
                 boost::add_vertex( _rootNode, _graph );
@@ -82,7 +88,7 @@ struct SceneGraph::Impl
     }
 
     NodePtr createNode( const std::string& name,
-                        NodeDataPtr nodeData )
+                        const NodeDataPtr& nodeData )
     {
         if( nodeExists( name ) )
             return NodePtr();
@@ -90,7 +96,7 @@ struct SceneGraph::Impl
         WriteLock writeLock( _mutex );
         NodePtr node( new Node( name,
                                 nodeData,
-                                sceneGraph ));
+                                _sceneGraph ));
 
         _nodeMap[ name ] =
                 boost::add_vertex( node, _graph );
@@ -100,7 +106,7 @@ struct SceneGraph::Impl
     NodePtr findNode( const std::string& name ) const
     {
         ReadLock readLock( _mutex );
-        NodeMap::iterator it = _nodeMap.find( name );
+        NodeMap::const_iterator it = _nodeMap.find( name );
         if( it != _nodeMap.end( ))
             return _graph[ it->second ];
 
@@ -113,9 +119,7 @@ struct SceneGraph::Impl
             return false;
 
         WriteLock writeLock( _mutex );
-        _nodeMap[ name ] =
-                boost::add_vertex( node, _graph );
-        boost::remove_vertex( _nodeMap[ name ] );
+        boost::remove_vertex( _nodeMap[ name ], _graph );
         _nodeMap.erase( name );
         return true;
     }
@@ -142,13 +146,13 @@ struct SceneGraph::Impl
             return NodePtr();
 
         ReadLock readLock( _mutex );
-        const NodeDescriptor& nd = _nodeMap[ child ];
+        const NodeDescriptor& nd = _nodeMap.find( child )->second;
         Graph::in_edge_iterator begin, end;
         boost::tie( begin, end ) = boost::in_edges( nd, _graph );
         if( begin == end )
             return NodePtr();
 
-        return _graph[ boost::source( *begin, graph ) ];
+        return _graph[ boost::source( *begin, _graph ) ];
     }
 
     NodePtrs&& getChildren( const std::string& parent ) const
@@ -158,50 +162,79 @@ struct SceneGraph::Impl
             return std::move( children );
 
         ReadLock readLock( _mutex );
-        const NodeDescriptor& nd = _nodeMap[ child ];
+        const NodeDescriptor& nd = _nodeMap.find( parent )->second;
 
         Graph::out_edge_iterator begin, end;
         for( boost::tie( begin, end) = boost::out_edges( nd, _graph );
              begin != end; ++begin )
         {
             const NodeDescriptor& child =
-                    boost::source( boost::target( *begin, _graph ));
+                    boost::target( *begin, _graph );
             children.push_back( _graph[ child ] );
         }
         return std::move( children );
     }
 
-    void SceneGraph::traverse( const Visitor& visitor,
-                               const std::string& name ) const
+    bool hasChild( const std::string& parent,
+                   const std::string& child ) const
+    {
+
+        if( !nodeExists( parent ) ||
+            !nodeExists( child ))
+        {
+            return false;
+        }
+
+        ReadLock readLock( _mutex );
+        const NodeDescriptor& nd = _nodeMap.find( parent )->second;
+
+        Graph::out_edge_iterator begin, end;
+        for( boost::tie( begin, end) = boost::out_edges( nd, _graph );
+             begin != end; ++begin )
+        {
+            const NodeDescriptor& cnd =
+                    boost::target( *begin, _graph );
+            const NodePtr& node = _graph[ cnd ];
+            if( node->getName() == child )
+                return true;
+        }
+        return false;
+    }
+
+    void traverse( Visitor& visitor,
+                   const std::string& name )
     {
         if( nodeExists( name ) )
             return;
 
         ReadLock readLock( _mutex );
-        DFSNodeVisitor dfs( visitor );
+        visitor.onBegin( _sceneGraph );
+        DFSNodeVisitor dfs( _sceneGraph, visitor );
         boost::depth_first_search( _graph,
                                    boost::visitor( dfs ),
                                    _nodeMap[ name ] );
+        visitor.onEnd( _sceneGraph );
     }
 
     NodePtr _rootNode;
     NodeMap _nodeMap;
     mutable ReadWriteMutex _mutex;
     Graph _graph;
+    SceneGraph& _sceneGraph;
 };
 
-ConstNodePtr getRoot() const
+ConstNodePtr SceneGraph::getRoot() const
 {
-    return _impl->rootNode;
+    return _impl->_rootNode;
 }
 
-NodePtr getRoot()
+NodePtr SceneGraph::getRoot()
 {
-    return _impl->rootNode;
+    return _impl->_rootNode;
 }
 
 NodePtr SceneGraph::createNode( const std::string& name,
-                                NodeDataPtr nodeData )
+                                const NodeDataPtr& nodeData )
 {
     return _impl->createNode( name, nodeData );
 }
@@ -222,18 +255,24 @@ bool SceneGraph::addChild( const std::string& parent,
     return _impl->addChild( parent, child );
 }
 
-NodePtr SceneGraph::getParent(const std::string& child ) const
+NodePtr SceneGraph::getParent( const std::string& child ) const
 {
     return _impl->getParent( child );
 }
 
-NodePtrs&& SceneGraph::getChildren(const std::string& parent) const
+NodePtrs&& SceneGraph::getChildren( const std::string& parent ) const
 {
     return _impl->getChildren( parent );
 }
 
-void SceneGraph::traverse( const Visitor& visitor,
-                           const std::string& name ) const
+bool SceneGraph::hasChild (const std::string& parent,
+                           const std::string& child ) const
+{
+    return _impl->hasChild( parent, child );
+}
+
+void SceneGraph::traverse( Visitor& visitor,
+                           const std::string& name )
 {
     _impl->traverse( visitor, name );
 }

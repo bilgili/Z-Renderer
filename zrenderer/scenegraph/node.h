@@ -61,7 +61,7 @@ public:
     /**
      * @return the node name
      */
-    std::string& getName() const;
+    const std::string& getName() const;
 
     /**
      * @return the parent node. If there is no parent, an empty
@@ -86,11 +86,10 @@ public:
     bool removeChild( const NodePtr& node );
 
     /**
-     * Get the children of a node with a given filter.
-     * @param filter is the filter to apply NodeData
+     * Get the children of a node.
      * @return the array of children
      */
-    NodePtrs&& getChildren( const Filter& filter ) const;
+    NodePtrs&& getChildren() const;
 
 private:
 

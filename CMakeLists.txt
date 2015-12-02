@@ -26,8 +26,9 @@ common_package(FreeImage REQUIRED)
 common_package(Eigen3 REQUIRED)
 common_package_post()
 
-add_subdirectory(rbvh)
-add_subdirectory(apps)
+# add_subdirectory(rbvh)
+# add_subdirectory(apps)
+add_subdirectory(zrenderer)
 add_subdirectory(tests)
 
 include(CPackConfig)

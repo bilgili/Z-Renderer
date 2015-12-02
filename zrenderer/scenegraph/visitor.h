@@ -22,16 +22,46 @@
 namespace zrenderer
 {
 
+/**
+ * This class is the visitor interface for scenegraph
+ * traversal.
+ */
 class Visitor
 {
 public:
 
-    ~Visitor() {}
-    virtual void onBegin( NodePtr& root UNUSED ) {}
-    virtual void preVisit( NodePtr& node UNUSED ) {}
-    virtual void visit( NodePtr& node ) = 0;
-    virtual void postVisit( NodePtr& node UNUSED) {}
-    virtual void onEnd( NodePtr& rootNode UNUSED) {}
-}
+    virtual ~Visitor() {}
+
+    /**
+     * Executed at the beginning of the traversal
+     * @param scenegraph is the traversed scene graph
+     */
+    virtual void onBegin( SceneGraph& scenegraph UNUSED ) {}
+
+    /**
+     * Executed just before visiting a node
+     * @param scenegraph is the traversed scene graph
+     */
+    virtual void preVisit( SceneGraph& scenegraph UNUSED,
+                           NodePtr& node UNUSED ) {}
+    /**
+     * Executed while visiting a node
+     * @param scenegraph is the traversed scene graph
+     */
+    virtual void visit( SceneGraph& scenegraph, NodePtr& node ) = 0;
+
+    /**
+     * Executed after visiting a node.
+     * @param scenegraph is the traversed scene graph
+     */
+    virtual void postVisit( SceneGraph& scenegraph UNUSED,
+                            NodePtr& node UNUSED) {}
+
+    /**
+     * Executed at the end of the traversal
+     * @param scenegraph is the traversed scene graph
+     */
+    virtual void onEnd( SceneGraph& scenegraph UNUSED ) {}
+};
 
 }
