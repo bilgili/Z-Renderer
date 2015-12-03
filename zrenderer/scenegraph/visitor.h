@@ -39,24 +39,11 @@ public:
     virtual void onBegin( const SceneGraph& scenegraph UNUSED ) {}
 
     /**
-     * Executed just before visiting a node
-     * @param scenegraph is the traversed scene graph
-     */
-    virtual void preVisit( const SceneGraph& scenegraph UNUSED,
-                           NodePtr node UNUSED ) {}
-    /**
      * Executed while visiting a node
      * @param scenegraph is the traversed scene graph
      */
     virtual void visit( const SceneGraph& scenegraph,
                         NodePtr node ) = 0;
-
-    /**
-     * Executed after visiting a node.
-     * @param scenegraph is the traversed scene graph
-     */
-    virtual void postVisit( const SceneGraph& scenegraph UNUSED,
-                            NodePtr node UNUSED) {}
 
     /**
      * Executed at the end of the traversal

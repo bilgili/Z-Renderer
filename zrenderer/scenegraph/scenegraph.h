@@ -51,7 +51,7 @@ public:
      * same name is there return an empty NodePtr
      */
     NodePtr createNode( const std::string& name,
-                        const NodeDataPtr& nodeData );
+                        const NodeDataPtr& nodeData = NodeDataPtr( ));
 
     /**
      * Finds a node in the scene graph

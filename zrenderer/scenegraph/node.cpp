@@ -14,10 +14,8 @@ struct Node::Impl
         , _nodeData( nodeData )
         , _sceneGraph( sceneGraph )
             {}
-    ~Impl()
-    {
-        _sceneGraph.removeNode( _name );
-    }
+
+    ~Impl() {}
 
     NodePtr getParent() const
     {
@@ -40,6 +38,11 @@ struct Node::Impl
     NodePtrs&& getChildren() const
     {
         return _sceneGraph.getChildren( _name );
+    }
+
+    bool hasChild( const NodePtr& node ) const
+    {
+        return _sceneGraph.hasChild( _name, node->getName( ));
     }
 
     const std::string _name;
@@ -80,6 +83,11 @@ NodePtr Node::getParent() const
 NodePtrs&& Node::getChildren() const
 {
     return _impl->getChildren();
+}
+
+bool Node::hasChild( const NodePtr& node ) const
+{
+    return _impl->hasChild( node );
 }
 
 Node::~Node() {}

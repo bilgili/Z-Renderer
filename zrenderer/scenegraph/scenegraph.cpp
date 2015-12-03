@@ -43,19 +43,9 @@ public:
     , _visitor( visitor )
     {}
 
-    void start_vertex( NodeDescriptor nd, const Graph& graph ) const
-    {
-        _visitor.preVisit( _scenegraph, graph[ nd ] );
-    }
-
-    void examine_vertex( NodeDescriptor nd, const Graph& graph ) const
+    void discover_vertex( NodeDescriptor nd, const Graph& graph ) const
     {
         _visitor.visit( _scenegraph, graph[ nd ] );
-    }
-
-    void finish_vertex( NodeDescriptor nd, const Graph& graph ) const
-    {
-        _visitor.postVisit( _scenegraph, graph[ nd ] );
     }
 
     const SceneGraph& _scenegraph;

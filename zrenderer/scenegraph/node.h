@@ -93,6 +93,12 @@ public:
      */
     NodePtrs&& getChildren() const;
 
+    /**
+     * @param node for the child
+     * @return true if node has the child
+     */
+    bool hasChild( const NodePtr& node ) const;
+
 private:
 
     friend class SceneGraph;
