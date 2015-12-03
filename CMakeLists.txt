@@ -19,6 +19,7 @@ set(ZRENDERER_LICENSE LGPL )
 
 include(Common)
 common_package(Boost REQUIRED COMPONENTS unit_test_framework
+                                         system
                                          program_options
                                          thread
                                          graph)

@@ -36,6 +36,8 @@ class Node
 
 public:
 
+    virtual ~Node();
+
     /**
      * Get the node data with the given type
      * @return the type casted data. If the casting fails an empty
@@ -98,8 +100,6 @@ private:
     Node( const std::string& name,
           const NodeDataPtr& nodeData,
           SceneGraph& sceneGraph );
-
-    virtual ~Node();
 
     NodeDataPtr _getNodeData();
     ConstNodeDataPtr _getNodeData() const;

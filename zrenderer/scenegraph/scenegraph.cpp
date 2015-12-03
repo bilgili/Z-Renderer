@@ -27,42 +27,38 @@
 namespace zrenderer
 {
 
-typedef boost::adjacency_list< boost::listS,
+typedef boost::adjacency_list< boost::vecS,
                                boost::vecS,
                                boost::bidirectionalS    ,
                                NodePtr > Graph;
 
 typedef Graph::vertex_descriptor NodeDescriptor;
 typedef std::unordered_map< std::string, NodeDescriptor > NodeMap;
-
-
 class DFSNodeVisitor : public boost::default_dfs_visitor
 {
 public:
-    DFSNodeVisitor( SceneGraph& scenegraph, Visitor& visitor )
+    DFSNodeVisitor( const SceneGraph& scenegraph,
+                    Visitor& visitor )
     : _scenegraph( scenegraph )
     , _visitor( visitor )
     {}
 
-    template < typename NodePtr, typename Graph >
-    void start_vertex( NodePtr node, const Graph& graph UNUSED ) const
+    void start_vertex( NodeDescriptor nd, const Graph& graph ) const
     {
-        _visitor.preVisit( _scenegraph, node );
+        _visitor.preVisit( _scenegraph, graph[ nd ] );
     }
 
-    template < typename NodePtr, typename Graph >
-    void examine_vertex( NodePtr node, const Graph& graph UNUSED ) const
+    void examine_vertex( NodeDescriptor nd, const Graph& graph ) const
     {
-        _visitor.visit( _scenegraph, node );
+        _visitor.visit( _scenegraph, graph[ nd ] );
     }
 
-    template < typename Vertex, typename Graph >
-    void finish_vertex( NodePtr node, const Graph& graph UNUSED ) const
+    void finish_vertex( NodeDescriptor nd, const Graph& graph ) const
     {
-        _visitor.postVisit( _scenegraph, node );
+        _visitor.postVisit( _scenegraph, graph[ nd ] );
     }
 
-    SceneGraph& _scenegraph;
+    const SceneGraph& _scenegraph;
     Visitor& _visitor;
 };
 
@@ -204,15 +200,15 @@ struct SceneGraph::Impl
     void traverse( Visitor& visitor,
                    const std::string& name )
     {
-        if( nodeExists( name ) )
+        if( !nodeExists( name ) )
             return;
 
         ReadLock readLock( _mutex );
         visitor.onBegin( _sceneGraph );
         DFSNodeVisitor dfs( _sceneGraph, visitor );
         boost::depth_first_search( _graph,
-                                   boost::visitor( dfs ),
-                                   _nodeMap[ name ] );
+                                   boost::visitor( dfs )
+                                   .root_vertex( _nodeMap[ name ] ));
         visitor.onEnd( _sceneGraph );
     }
 
@@ -222,6 +218,13 @@ struct SceneGraph::Impl
     Graph _graph;
     SceneGraph& _sceneGraph;
 };
+
+SceneGraph::SceneGraph()
+    : _impl( new SceneGraph::Impl( *this ))
+{}
+
+SceneGraph::~SceneGraph()
+{}
 
 ConstNodePtr SceneGraph::getRoot() const
 {
