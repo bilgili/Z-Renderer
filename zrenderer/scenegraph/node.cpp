@@ -35,7 +35,7 @@ struct Node::Impl
         return _sceneGraph.removeNode( node->getName() );
     }
 
-    NodePtrs&& getChildren() const
+    NodePtrs getChildren() const
     {
         return _sceneGraph.getChildren( _name );
     }
@@ -80,7 +80,7 @@ NodePtr Node::getParent() const
     return _impl->getParent();
 }
 
-NodePtrs&& Node::getChildren() const
+NodePtrs Node::getChildren() const
 {
     return _impl->getChildren();
 }

@@ -27,13 +27,15 @@
 namespace zrenderer
 {
 
-typedef boost::adjacency_list< boost::vecS,
-                               boost::vecS,
-                               boost::bidirectionalS    ,
+typedef boost::adjacency_list< boost::listS,
+                               boost::listS,
+                               boost::bidirectionalS,
                                NodePtr > Graph;
 
 typedef Graph::vertex_descriptor NodeDescriptor;
 typedef std::unordered_map< std::string, NodeDescriptor > NodeMap;
+typedef std::unordered_map< NodeDescriptor, size_t > NodeDescriptorIndexMap;
+typedef boost::associative_property_map< NodeDescriptorIndexMap > IndexMap;
 class DFSNodeVisitor : public boost::default_dfs_visitor
 {
 public:
@@ -101,11 +103,13 @@ struct SceneGraph::Impl
 
     bool removeNode( const std::string& name )
     {
-        if( nodeExists( name ) )
+        if( !nodeExists( name ) )
             return false;
 
         WriteLock writeLock( _mutex );
+        boost::clear_vertex( _nodeMap[ name ], _graph );
         boost::remove_vertex( _nodeMap[ name ], _graph );
+
         _nodeMap.erase( name );
         return true;
     }
@@ -141,11 +145,11 @@ struct SceneGraph::Impl
         return _graph[ boost::source( *begin, _graph ) ];
     }
 
-    NodePtrs&& getChildren( const std::string& parent ) const
+    NodePtrs getChildren( const std::string& parent ) const
     {
         NodePtrs children;
-        if( nodeExists( parent ) )
-            return std::move( children );
+        if( !nodeExists( parent ) )
+            return children;
 
         ReadLock readLock( _mutex );
         const NodeDescriptor& nd = _nodeMap.find( parent )->second;
@@ -158,7 +162,7 @@ struct SceneGraph::Impl
                     boost::target( *begin, _graph );
             children.push_back( _graph[ child ] );
         }
-        return std::move( children );
+        return children;
     }
 
     bool hasChild( const std::string& parent,
@@ -194,16 +198,26 @@ struct SceneGraph::Impl
             return;
 
         ReadLock readLock( _mutex );
+
+        NodeDescriptorIndexMap ndIndexMap;
+        IndexMap indexMap =
+                boost::make_assoc_property_map( ndIndexMap );
+
+        for( auto vd : boost::make_iterator_range( boost::vertices( _graph )))
+            ndIndexMap[ vd ] = ndIndexMap.size();
+
         visitor.onBegin( _sceneGraph );
         DFSNodeVisitor dfs( _sceneGraph, visitor );
         boost::depth_first_search( _graph,
                                    boost::visitor( dfs )
-                                   .root_vertex( _nodeMap[ name ] ));
+                                   .root_vertex( _nodeMap[ name ] )
+                                   .vertex_index_map( indexMap ));
         visitor.onEnd( _sceneGraph );
     }
 
     NodePtr _rootNode;
     NodeMap _nodeMap;
+
     mutable ReadWriteMutex _mutex;
     Graph _graph;
     SceneGraph& _sceneGraph;
@@ -253,7 +267,7 @@ NodePtr SceneGraph::getParent( const std::string& child ) const
     return _impl->getParent( child );
 }
 
-NodePtrs&& SceneGraph::getChildren( const std::string& parent ) const
+NodePtrs SceneGraph::getChildren( const std::string& parent ) const
 {
     return _impl->getChildren( parent );
 }

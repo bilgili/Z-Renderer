@@ -91,7 +91,7 @@ public:
      * Get the children of a node.
      * @return the array of children
      */
-    NodePtrs&& getChildren() const;
+    NodePtrs getChildren() const;
 
     /**
      * @param node for the child

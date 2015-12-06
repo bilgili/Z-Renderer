@@ -91,7 +91,7 @@ public:
      * @param parent node name
      * @return the array of children
      */
-    NodePtrs&& getChildren( const std::string& parent ) const;
+    NodePtrs getChildren( const std::string& parent ) const;
 
     /**
      * Queries if a parent node has a child

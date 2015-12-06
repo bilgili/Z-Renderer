@@ -128,14 +128,33 @@ BOOST_AUTO_TEST_CASE( add_node_and_visit )
     BOOST_CHECK( !scenegraph.hasChild( zrenderer::ROOT_NODE,
                                        nodeChild1->getName( )));
 
-    Visitor visitor;
-    scenegraph.traverse( visitor );
+    auto nodes = nodeParent->getChildren();
 
-    BOOST_CHECK( visitor.beginVisited == 0 );
-    BOOST_CHECK( visitor.rootVisited == 1 );
-    BOOST_CHECK( visitor.albertVisited == 2 );
-    BOOST_CHECK( visitor.batmanVisited == 3 );
-    BOOST_CHECK( visitor.robinVisited == 4 );
-    BOOST_CHECK( visitor.endVisited == 5 );
+    BOOST_CHECK( nodes.size() == 2 );
+
+    Visitor visitor1;
+    scenegraph.traverse( visitor1 );
+
+    BOOST_CHECK( visitor1.beginVisited == 0 );
+    BOOST_CHECK( visitor1.rootVisited == 1 );
+    BOOST_CHECK( visitor1.albertVisited == 2 );
+    BOOST_CHECK( visitor1.batmanVisited == 3 );
+    BOOST_CHECK( visitor1.robinVisited == 4 );
+    BOOST_CHECK( visitor1.endVisited == 5 );
+
+    scenegraph.removeNode( parentName );
+
+    nodeParent = scenegraph.findNode( parentName );
+    BOOST_CHECK( nodeParent.get() == 0 );
+
+    Visitor visitor2;
+    scenegraph.traverse( visitor2 );
+
+    BOOST_CHECK( visitor2.beginVisited == 0 );
+    BOOST_CHECK( visitor2.rootVisited == 1 );
+    BOOST_CHECK( visitor2.albertVisited == 0 );
+    BOOST_CHECK( visitor2.batmanVisited == 0 );
+    BOOST_CHECK( visitor2.robinVisited == 0 );
+    BOOST_CHECK( visitor2.endVisited == 2 );
 }
 
