@@ -34,8 +34,7 @@ typedef boost::adjacency_list< boost::listS,
 
 typedef Graph::vertex_descriptor NodeDescriptor;
 typedef std::unordered_map< std::string, NodeDescriptor > NodeMap;
-typedef std::unordered_map< NodeDescriptor, boost::default_color_type > NodeDescriptorIndexMap;
-typedef boost::associative_property_map< NodeDescriptorIndexMap > IndexMap;
+
 class DFSNodeVisitor : public boost::default_dfs_visitor
 {
 public:
@@ -198,12 +197,17 @@ struct SceneGraph::Impl
             return;
 
         ReadLock readLock( _mutex );
+        typedef std::unordered_map< NodeDescriptor,
+                                    boost::default_color_type >
+                                    NodeDescriptorIndexMap;
+        typedef boost::associative_property_map< NodeDescriptorIndexMap >
+                                    IndexMap;
 
         NodeDescriptorIndexMap ndIndexMap;
         IndexMap indexMap =
                 boost::make_assoc_property_map( ndIndexMap );
 
-        for( auto vd : boost::make_iterator_range( boost::vertices( _graph )))
+        for( auto vd : boost::make_iterator_range( boost::vertices( _graph ) ))
             ndIndexMap[ vd ] = boost::default_color_type();
 
         visitor.onBegin( _sceneGraph );
@@ -224,7 +228,7 @@ struct SceneGraph::Impl
 };
 
 SceneGraph::SceneGraph()
-    : _impl( new SceneGraph::Impl( *this ))
+    : _impl( new SceneGraph::Impl( *this ) )
 {}
 
 SceneGraph::~SceneGraph()

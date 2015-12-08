@@ -42,7 +42,7 @@ struct Node::Impl
 
     bool hasChild( const NodePtr& node ) const
     {
-        return _sceneGraph.hasChild( _name, node->getName( ));
+        return _sceneGraph.hasChild( _name, node->getName() );
     }
 
     const std::string _name;
@@ -55,7 +55,7 @@ Node::Node( const std::string& name,
             SceneGraph& sceneGraph )
     : _impl( new Node::Impl( name,
                              nodeData,
-                             sceneGraph ))
+                             sceneGraph ) )
 {
 
 }
