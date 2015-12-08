@@ -32,6 +32,8 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
+#include <zrenderer/common/compiler.h>
+
 namespace zrenderer
 {
 

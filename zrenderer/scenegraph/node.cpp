@@ -1,4 +1,6 @@
 #include <zrenderer/scenegraph/node.h>
+#include <zrenderer/scenegraph/scenegraph.h>
+#include <zrenderer/scenegraph/nodedata.h>
 
 namespace zrenderer
 {
@@ -6,58 +8,96 @@ namespace zrenderer
 struct Node::Impl
 {
     Impl( const std::string& name,
-          NodeDataPtr nodeData,
+          const NodeDataPtr& nodeData,
           SceneGraph& sceneGraph )
         : _name( name )
         , _nodeData( nodeData )
-        , sceneGraph( sceneGraph )
+        , _sceneGraph( sceneGraph )
             {}
-    ~Impl()
+
+    ~Impl() {}
+
+    NodePtr getParent() const
     {
-        _sceneGraph.removeChild( _name );
+        return _sceneGraph.getParent( _name );
     }
 
-    ConstNodePtr getParent() const
+    bool addChild( const NodePtr& node )
     {
-        return _sceneGraph.getParent( *this );
+        return _sceneGraph.addChild( _name, node->getName() );
     }
 
-    void addChild( NodePtr node )
+    bool removeChild( const NodePtr& node )
     {
-        _sceneGraph.addChild( *this, *node );
+        if( !_sceneGraph.hasChild( _name,node->getName() ))
+            return false;
+
+        return _sceneGraph.removeNode( node->getName() );
     }
 
-    void removeChild( NodePtr node )
+    NodePtrs getChildren() const
     {
-        _sceneGraph.removeChild( *this );
+        return _sceneGraph.getChildren( _name );
     }
 
-    ConstNodePtrs getChildren( const Filter& filter ) const;
-    NodePtrs getChildren( const Filter& filter );
+    bool hasChild( const NodePtr& node ) const
+    {
+        return _sceneGraph.hasChild( _name, node->getName() );
+    }
 
-    SceneGraph& _sceneGraph;
-    const std::string name;
+    const std::string _name;
     NodeDataPtr _nodeData;
+    SceneGraph& _sceneGraph;
 };
 
 Node::Node( const std::string& name,
-            NodeDataPtr nodeData,
+            const NodeDataPtr& nodeData,
             SceneGraph& sceneGraph )
     : _impl( new Node::Impl( name,
                              nodeData,
-                             sceneGraph ))
+                             sceneGraph ) )
 {
 
+}
+
+const std::string& Node::getName() const
+{
+    return _impl->_name;
+}
+
+bool Node::addChild( const NodePtr& node )
+{
+    return _impl->addChild( node );
+}
+
+bool Node::removeChild( const NodePtr& node )
+{
+    return _impl->removeChild( node );
+}
+
+NodePtr Node::getParent() const
+{
+    return _impl->getParent();
+}
+
+NodePtrs Node::getChildren() const
+{
+    return _impl->getChildren();
+}
+
+bool Node::hasChild( const NodePtr& node ) const
+{
+    return _impl->hasChild( node );
 }
 
 Node::~Node() {}
 
-NodeDataPtr Node::getNodeData()
+NodeDataPtr Node::_getNodeData()
 {
     return _impl->_nodeData;
 }
 
-ConstNodeDataPtr Node::getNodeData() const
+ConstNodeDataPtr Node::_getNodeData() const
 {
     return _impl->_nodeData;
 }

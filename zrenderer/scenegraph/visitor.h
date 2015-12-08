@@ -17,31 +17,39 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _scenegraph_types_
-#define _scenegraph_types_
-
-#include <zrenderer/common/types.h>
+#include <zrenderer/scenegraph/types.h>
 
 namespace zrenderer
 {
 
-class GeometryData;
-class Node;
-class NodeData;
-class SceneGraph;
-class Visitor;
+/**
+ * This class is the visitor interface for scenegraph
+ * traversal.
+ */
+class Visitor
+{
+public:
 
-typedef std::shared_ptr<Node> NodePtr;
-typedef std::shared_ptr<const Node> ConstNodePtr;
-typedef std::shared_ptr<NodeData> NodeDataPtr;
-typedef std::shared_ptr<const NodeData> ConstNodeDataPtr;
-typedef std::shared_ptr<GeometryData> GeometryDataPtr;
+    virtual ~Visitor() {}
 
-typedef std::vector<NodePtr> NodePtrs;
-typedef std::vector<ConstNodePtr> ConstNodePtrs;
+    /**
+     * Executed at the beginning of the traversal
+     * @param scenegraph is the traversed scene graph
+     */
+    virtual void onBegin( const SceneGraph& scenegraph UNUSED ) {}
 
-const std::string ROOT_NODE = "RootNode";
+    /**
+     * Executed while visiting a node
+     * @param scenegraph is the traversed scene graph
+     */
+    virtual void visit( const SceneGraph& scenegraph,
+                        NodePtr node ) = 0;
+
+    /**
+     * Executed at the end of the traversal
+     * @param scenegraph is the traversed scene graph
+     */
+    virtual void onEnd( const SceneGraph& scenegraph UNUSED ) {}
+};
 
 }
-
-#endif // _scenegraph_types_

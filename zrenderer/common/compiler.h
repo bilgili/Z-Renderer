@@ -1,10 +1,7 @@
-/* Copyright (c) 2015, Zombie Rendering
- *                     ahmetbilgili@gmail.com
- *
- * This file is part of Z-Renderer <https://github.com/ZombieRendering/Z-Renderer>
+/* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License version 3.0 as published
+ * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
@@ -17,24 +14,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _node_h_
-#define _node_h_
-
-#include <zrenderer/scenegraph/types.h>
-
-namespace zrenderer
-{
-
-/**
- * Node class is the base class for scenegraph nodes.
- */
-class NodeData
-{
-protected:
-    virtual ~NodeData() {}
-
-};
-
-}
-
-#endif // _node_h_
+#if defined (__GNUC__)
+#  define UNUSED __attribute__((unused))
+#  ifdef DEPRECATED // Set CMake option ENABLE_WARN_DEPRECATED
+#    define DEPRECATED __attribute__((deprecated))
+#  endif // DEPRECATED
+#endif // defined (__GNUC__)

@@ -36,26 +36,79 @@ class Node
 
 public:
 
-    NodeDataPtr getNodeData();
-    ConstNodeDataPtr getNodeData() const;
+    virtual ~Node();
 
-    ConstNodePtr getParent() const;
+    /**
+     * Get the node data with the given type
+     * @return the type casted data. If the casting fails an empty
+     * ptr is returned
+     */
+    template<class T>
+    std::shared_ptr<T> getNodeData()
+    {
+        return boost::dynamic_pointer_cast<T>( _getNodeData() );
+    }
 
-    void addChild( NodePtr node );
-    void removeChild( NodePtr node );
+    /**
+     * Get the node data with the given type
+     * @return the type casted data. If the casting fails an empty
+     * ptr is returned
+     */
+    template<class T>
+    std::shared_ptr<const T> getNodeData() const
+    {
+        return boost::dynamic_pointer_cast<T>( _getNodeData() );
+    }
 
-    ConstNodePtrs getChildren( const Filter& filter ) const;
-    NodePtrs getChildren( const Filter& filter );
+    /**
+     * @return the node name
+     */
+    const std::string& getName() const;
+
+    /**
+     * @return the parent node. If there is no parent, an empty
+     * ptr is returned.
+     */
+    NodePtr getParent() const;
+
+    /**
+     * Add a node as a child. The node has to be created by the
+     * scenegraph before attached.
+     * @param node for the child
+     * @return true if child can be added.
+     */
+    bool addChild( const NodePtr& child );
+
+    /**
+     * Remove the child. The node has to be part of the same scene
+     * graph.
+     * @param node for the child
+     * @return true if child can be added.
+     */
+    bool removeChild( const NodePtr& node );
+
+    /**
+     * Get the children of a node.
+     * @return the array of children
+     */
+    NodePtrs getChildren() const;
+
+    /**
+     * @param node for the child
+     * @return true if node has the child
+     */
+    bool hasChild( const NodePtr& node ) const;
 
 private:
 
     friend class SceneGraph;
 
     Node( const std::string& name,
-          NodeDataPtr nodeData,
+          const NodeDataPtr& nodeData,
           SceneGraph& sceneGraph );
 
-    virtual ~Node();
+    NodeDataPtr _getNodeData();
+    ConstNodeDataPtr _getNodeData() const;
 
     struct Impl;
     std::unique_ptr<Impl> _impl;
