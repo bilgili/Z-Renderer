@@ -113,6 +113,9 @@ public:
 
 private:
 
+    SceneGraph( const SceneGraph& ) = delete;
+    SceneGraph& operator=( const SceneGraph& ) = delete;
+
     struct Impl;
     std::unique_ptr<Impl> const _impl;
 };

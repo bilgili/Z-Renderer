@@ -83,7 +83,7 @@ struct SceneGraph::Impl
         WriteLock writeLock( _mutex );
         NodePtr node( new Node( name,
                                 nodeData,
-                                _sceneGraph ));
+                                _sceneGraph ) );
 
         _nodeMap[ name ] =
                 boost::add_vertex( node, _graph );

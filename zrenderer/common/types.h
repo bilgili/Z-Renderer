@@ -25,8 +25,11 @@
 #include <map>
 #include <unordered_map>
 #include <set>
+#include <deque>
 #include <algorithm>
 #include <cstdint>
+#include <functional>
+#include <atomic>
 
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
@@ -53,12 +56,14 @@ using std::uint64_t;
 /**
  * Class definitions
  */
+
+class CacheObject;
 class Mesh;
 
 /**
  * SmartPtr definition
  */
-typedef std::shared_ptr<Mesh> MeshPtr;
+typedef std::shared_ptr< Mesh > MeshPtr;
 
 /**
  * Locking object definitions
